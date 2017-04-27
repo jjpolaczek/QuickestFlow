@@ -1,6 +1,0 @@
-Prowadzący 		dr hab. inż. Krzysztof Pieńkosz
-	
-Temat 		Wyznaczanie najszybszego przepływu
-	
-Opis 		Sieć przepływowa ma jedno źródło i jedno ujście. Każdy łuk sieci ma określone dwa parametry całkowitoliczbowe: przepustowość oraz czas przepływu. Problem najszybszego przepływu polega na wyznaczeniu najszybszego sposobu przesłania ze źródła do ujścia zadanej wielkości towaru nie przekraczając przepustowości łuków. W ramach projektu należy opracować algorytm i program dla problemu najszybszego przepływu.
-	
