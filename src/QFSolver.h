@@ -37,10 +37,11 @@ public:
 	void LoadGraph(std::string filepath);
 	void Solve();
 private:
+	void ExtendGraph();
 	lemon::ListDigraph *baseGraph_;
-	lemon::ListDigraph::ArcMap<unsigned int> *capacityMap_;
-	lemon::ListDigraph::ArcMap<unsigned int> *speedMap_;
+	lemon::ListDigraph::ArcMap<int> *capacityMap_;
+	lemon::ListDigraph::ArcMap<int> *speedMap_;
 	lemon::ListDigraph *teGraph_;
-	lemon::ListDigraph::ArcMap<unsigned int> *teMap_;
+	lemon::ListDigraph::ArcMap<int> *teMap_;
 	bool initialized_;
 };
