@@ -8,7 +8,8 @@ void QFSolver::LoadGraph(std::string filename)
 	file.open(filename, std::ios::in);
 	if (file.is_open())
 	{
-
+		maxCapacity_ = 0;
+		maxDelay_ = 0;
 		std::string line;
 		struct Arc_
 		{
@@ -28,7 +29,7 @@ void QFSolver::LoadGraph(std::string filename)
 		line = line.substr(sz);
 		targetID_ = target = std::stoi(line, &sz);
 		line = line.substr(sz);
-		F = std::stoi(line, &sz);
+		flowValue_ = F = std::stoi(line, &sz);
 		line = line.substr(sz);
 		arc_count = std::stoi(line, &sz);
 		line = line.substr(sz);
@@ -48,6 +49,11 @@ void QFSolver::LoadGraph(std::string filename)
 			arc.delay = std::stoi(line, &sz);
 			std::cout << "Arc parameters: " << arc.vi << "-" << arc.vj << ", capacity: " << arc.capacity << ", delay: " << arc.delay << "\r\n";
 			tmpArc.push_back(arc);
+			//Max values//
+			if (arc.capacity > maxCapacity_)
+				maxCapacity_ = arc.capacity;
+			if (arc.delay > maxDelay_)
+				maxDelay_ = arc.delay;
 		}
 
 		file.close();
@@ -148,32 +154,88 @@ void QFSolver::ExpandGraph(unsigned int horizon)
 	}
 	horizon_ = horizon;
 }
-int QFSolver::MaxFlow()
+void QFSolver::MaxFlowMap(unsigned int horizon)
 {
+
+	ExpandGraph(horizon);
 	//Sanity checks//
 	if (teGraph_ == nullptr || teMap_ == nullptr)
 		throw std::exception("No time expanded network");
 	//Calculate source and target nodes//
 	int source = sourceID_;
-	int target = targetID_ + (horizon_ - 1) * (baseGraph_->maxNodeId() + 1); //Trough time expanded network//
+	int target = targetID_ + (horizon_ - 1) * (baseGraph_->maxNodeId() + 1); //Through time expanded network//
 
 	ListDigraph::Node sNode = teGraph_->nodeFromId(source);
 	ListDigraph::Node tNode = teGraph_->nodeFromId(target);
 	EdmondsKarp<ListDigraph, ListDigraph::ArcMap<int>> mfAlg((*teGraph_),(*teMap_),sNode, tNode);
 	mfAlg.init();
 	mfAlg.run();
+	//This can be moved somwhere else//
+	const EdmondsKarp<ListDigraph, ListDigraph::ArcMap<int>>::FlowMap &flowMap = mfAlg.flowMap();
+	if (flowMap_ != nullptr)
+	{
+		delete flowMap_;
+		flowMap_ = nullptr;
+	}
+	//Copy calculated flowmap from the algorithm//
+	flowMap_ = new ListDigraph::ArcMap<int>(*teGraph_);
+	int arcCount = teGraph_->maxArcId() + 1;
+	for (int i = 0; i < arcCount; ++i)
+	{
+		ListDigraph::Arc arc = teGraph_->arcFromId(i);
+		(*flowMap_)[arc] = flowMap[arc];
+	}
+	std::cout << "LOLO";
+}
+int QFSolver::MaxFlow(unsigned int horizon)
+{
+
+	ExpandGraph(horizon);
+	//Sanity checks//
+	if (teGraph_ == nullptr || teMap_ == nullptr)
+		throw std::exception("No time expanded network");
+	//Calculate source and target nodes//
+	int source = sourceID_;
+	int target = targetID_ + (horizon_ - 1) * (baseGraph_->maxNodeId() + 1); //Through time expanded network//
+
+	ListDigraph::Node sNode = teGraph_->nodeFromId(source);
+	ListDigraph::Node tNode = teGraph_->nodeFromId(target);
+	EdmondsKarp<ListDigraph, ListDigraph::ArcMap<int>> mfAlg((*teGraph_), (*teMap_), sNode, tNode);
+	mfAlg.init();
+	mfAlg.run();
+
 	return mfAlg.flowValue();
-	//EdmondsKarp<ListDigraph, ListDigraph::ArcMap<int>>::FlowMap flowMap = mfAlg.flowMap;
 
 }
 void QFSolver::Solve()
 {
-	for (int i = 1; i < 15; ++i)
+	//Binary search//
+	int lh = 0, uh = maxDelay_ + maxCapacity_ / flowValue_;
+	std::cout << "Lower bound:  "<< lh << ", Upper bound: " << uh << "\r\n";
+	//Expand upper bound if needed//
+	while (MaxFlow(uh) < flowValue_)
 	{
-		ExpandGraph(i);
-		int flowValue = MaxFlow();
-		std::cout << "Flow returned: " << flowValue << "\r\n";
+		lh = uh;
+		uh *= 2;
+
+		std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
 	}
-	//Try one iteration of karps algo//
-	
+	//Search until 1 epsilion//
+	while(lh != uh && lh != uh -1)
+	{
+		int middle = (uh + lh) / 2;
+		int flow = MaxFlow(middle);
+		if (flow < flowValue_)
+			lh = middle;
+		else
+			uh = middle;
+		std::cout << "Flow returned: " << flow << "\r\n";
+		std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
+	}
+	std::cout << "Quickest flow time horizon returned: " << uh << "\r\n";
+	MaxFlowMap(uh);
+}
+void QFSolver::SaveResults(std::string filename)
+{
+
 }

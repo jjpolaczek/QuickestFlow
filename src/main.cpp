@@ -7,9 +7,6 @@ int main()
 	solver.LoadGraph("sample.txt");
 	solver.Solve();
 	
-	std::cout << "Hello World!!" << std::endl;
-	int a;
-	std::cin >> a;
-
+	system("PAUSE");
 
 }
