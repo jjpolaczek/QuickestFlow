@@ -30,9 +30,9 @@ void QFSolver::LoadGraph(std::string filename)
 		line = line.substr(sz);
 		F = std::stoi(line, &sz);
 		line = line.substr(sz);
-		node_count = std::stoi(line, &sz);
-		line = line.substr(sz);
 		arc_count = std::stoi(line, &sz);
+		line = line.substr(sz);
+		node_count = std::stoi(line, &sz);
 		std::cout << "Loading graph, source: " << source << ", sink: " << target << ", flow: " << F << "\r\n";
 		std::cout << "Nodes: " << node_count << ", Arcs: " << arc_count << "\r\n\r\n";
 		while (getline(file, line))

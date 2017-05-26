@@ -27,3 +27,6 @@
 *.exe
 *.out
 *.app
+#build paths
+src/Release
+srv/Debug
