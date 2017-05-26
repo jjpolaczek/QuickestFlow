@@ -11,13 +11,16 @@
 class QFSolver
 {
 public:
-	QFSolver():
+	QFSolver() :
 		baseGraph_(nullptr),
 		speedMap_(nullptr),
 		capacityMap_(nullptr),
 		teGraph_(nullptr),
 		teMap_(nullptr),
-		initialized_(false)
+		initialized_(false),
+		horizon_(0),
+		sourceID_(-1),
+		targetID_(-1)
 	{
 
 	}
@@ -45,4 +48,7 @@ private:
 	lemon::ListDigraph *teGraph_;
 	lemon::ListDigraph::ArcMap<int> *teMap_;
 	bool initialized_;
+	int horizon_;
+	int sourceID_;
+	int targetID_;
 };

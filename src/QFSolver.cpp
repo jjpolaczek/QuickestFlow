@@ -24,9 +24,9 @@ void QFSolver::LoadGraph(std::string filename)
 		if (!getline(file, line))
 			throw std::out_of_range("File containing graph empty");
 
-		source = std::stoi(line, &sz);
+		sourceID_ = source = std::stoi(line, &sz);
 		line = line.substr(sz);
-		target = std::stoi(line, &sz);
+		targetID_ = target = std::stoi(line, &sz);
 		line = line.substr(sz);
 		F = std::stoi(line, &sz);
 		line = line.substr(sz);
@@ -106,7 +106,7 @@ void QFSolver::ExpandGraph(unsigned int horizon)
 	teMap_ = new ListDigraph::ArcMap<int>(*teGraph_);
 	//The new graph has horizon * n nodes - format for visibility
 	int nodeCount = baseGraph_->maxNodeId() + 1;
-	for (int i = 0; i < horizon; ++i)
+	for (int i = 0; i <= horizon; ++i)
 	{
 		for (int j = 0; j < nodeCount; ++j)
 		{
@@ -117,7 +117,7 @@ void QFSolver::ExpandGraph(unsigned int horizon)
 
 	//We want a time expanded graph - vertical (same nodes are connected with infinite capacities 
 	//in time slices, this is first n * (horizon -1) arcs//
-	for (int i = 0; i < horizon - 1; ++i)
+	for (int i = 0; i <= horizon - 1; ++i)
 	{
 		for (int j = 0; j < nodeCount; ++j)
 		{
@@ -138,7 +138,7 @@ void QFSolver::ExpandGraph(unsigned int horizon)
 			vj = baseGraph_->id(baseGraph_->target(arc));
 			speed = (*speedMap_)[arc];
 			capacity = (*capacityMap_)[arc];
-			if (i + speed < horizon)
+			if (i + speed <= horizon)
 			{
 				ListDigraph::Arc arc = 
 					teGraph_->addArc(baseGraph_->nodeFromId(vi + i * nodeCount), baseGraph_->nodeFromId(vj + (i + speed) * nodeCount));
@@ -146,15 +146,34 @@ void QFSolver::ExpandGraph(unsigned int horizon)
 			}
 		}
 	}
-
-
+	horizon_ = horizon;
 }
 int QFSolver::MaxFlow()
 {
+	//Sanity checks//
+	if (teGraph_ == nullptr || teMap_ == nullptr)
+		throw std::exception("No time expanded network");
+	//Calculate source and target nodes//
+	int source = sourceID_;
+	int target = targetID_ + (horizon_ - 1) * (baseGraph_->maxNodeId() + 1); //Trough time expanded network//
+
+	ListDigraph::Node sNode = teGraph_->nodeFromId(source);
+	ListDigraph::Node tNode = teGraph_->nodeFromId(target);
+	EdmondsKarp<ListDigraph, ListDigraph::ArcMap<int>> mfAlg((*teGraph_),(*teMap_),sNode, tNode);
+	mfAlg.init();
+	mfAlg.run();
+	return mfAlg.flowValue();
+	//EdmondsKarp<ListDigraph, ListDigraph::ArcMap<int>>::FlowMap flowMap = mfAlg.flowMap;
 
 }
 void QFSolver::Solve()
 {
+	for (int i = 1; i < 15; ++i)
+	{
+		ExpandGraph(i);
+		int flowValue = MaxFlow();
+		std::cout << "Flow returned: " << flowValue << "\r\n";
+	}
 	//Try one iteration of karps algo//
-
+	
 }
