@@ -18,7 +18,6 @@ void QFSolver::LoadGraph(std::string filename)
 			int delay;
 		};
 		std::vector<Arc_> tmpArc;
-		//std::vector<ListDigraph::Node> tmpNodes;
 		//First line contains graph global parameters//
 		int source, target, F, node_count, arc_count;
 		std::string::size_type sz;
@@ -86,4 +85,76 @@ void QFSolver::LoadGraph(std::string filename)
 	{
 		throw std::invalid_argument("Invalid file path");
 	}
+}
+void QFSolver::ExpandGraph(unsigned int horizon)
+{
+	if (horizon < 1)
+		throw std::out_of_range("Invalid horizon");
+	//Delete existing graph and capacity map//
+	if (teGraph_ != nullptr)
+	{
+		delete teGraph_;
+		teGraph_ = nullptr;
+	}
+		
+	if (teMap_ != nullptr)
+	{
+		delete teMap_;
+		teMap_ = nullptr;
+	}
+	teGraph_ = new ListDigraph();
+	teMap_ = new ListDigraph::ArcMap<int>(*teGraph_);
+	//The new graph has horizon * n nodes - format for visibility
+	int nodeCount = baseGraph_->maxNodeId() + 1;
+	for (int i = 0; i < horizon; ++i)
+	{
+		for (int j = 0; j < nodeCount; ++j)
+		{
+			teGraph_->addNode();
+		}
+	}
+	//Create map//
+
+	//We want a time expanded graph - vertical (same nodes are connected with infinite capacities 
+	//in time slices, this is first n * (horizon -1) arcs//
+	for (int i = 0; i < horizon - 1; ++i)
+	{
+		for (int j = 0; j < nodeCount; ++j)
+		{
+			ListDigraph::Arc arc = teGraph_->addArc(baseGraph_->nodeFromId(j + i * nodeCount), baseGraph_->nodeFromId(j + (i + 1) * nodeCount));
+			(*teMap_)[arc] = INT32_MAX;//Very large value of capacity//
+		}
+	}
+	//And respective nodes are connected via several time slices (taking speed into account)//
+	int arcCount = baseGraph_->maxArcId() + 1;
+	for (int i = 0; i < horizon; ++i)
+	{
+		for (int j = 0; j < arcCount; ++j)
+		{
+			int vi, vj, speed, capacity;
+			ListDigraph::Arc arc = baseGraph_->arcFromId(j);
+
+			vi = baseGraph_->id(baseGraph_->source(arc));
+			vj = baseGraph_->id(baseGraph_->target(arc));
+			speed = (*speedMap_)[arc];
+			capacity = (*capacityMap_)[arc];
+			if (i + speed < horizon)
+			{
+				ListDigraph::Arc arc = 
+					teGraph_->addArc(baseGraph_->nodeFromId(vi + i * nodeCount), baseGraph_->nodeFromId(vj + (i + speed) * nodeCount));
+				(*teMap_)[arc] = capacity;//Assign capacity to the arc map//
+			}
+		}
+	}
+
+
+}
+int QFSolver::MaxFlow()
+{
+
+}
+void QFSolver::Solve()
+{
+	//Try one iteration of karps algo//
+
 }

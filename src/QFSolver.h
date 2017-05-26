@@ -37,7 +37,8 @@ public:
 	void LoadGraph(std::string filepath);
 	void Solve();
 private:
-	void ExtendGraph();
+	void ExpandGraph(unsigned int horizon);
+	int MaxFlow();
 	lemon::ListDigraph *baseGraph_;
 	lemon::ListDigraph::ArcMap<int> *capacityMap_;
 	lemon::ListDigraph::ArcMap<int> *speedMap_;
