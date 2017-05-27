@@ -213,11 +213,12 @@ void QFSolver::Solve()
 	int lh = 0, uh = maxDelay_ + maxCapacity_ / flowValue_;
 	//std::cout << "Lower bound:  "<< lh << ", Upper bound: " << uh << "\r\n";
 	//Expand upper bound if needed//
-	while (MaxFlow(uh) < flowValue_)
+	int uhflow = MaxFlow(uh);
+	while (uhflow < flowValue_)
 	{
 		lh = uh;
 		uh *= 2;
-
+		uhflow = MaxFlow(uh);
 	//	std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
 	}
 	//Search until 1 epsilion//
@@ -229,13 +230,16 @@ void QFSolver::Solve()
 		if (flow < flowValue_)
 			lh = middle;
 		else
+		{
 			uh = middle;
+			uhflow = flow;
+		}
 	//	std::cout << "Flow returned: " << flow << "\r\n";
 	//	std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
 	}
 	//std::cout << "Quickest flow time horizon returned: " << uh << "\r\n";
 	MaxFlowMap(uh);
-	unitsSent_ = flow;
+	unitsSent_ = uhflow;
 	timeUsed_ = uh;
 }
 void QFSolver::SaveResults(std::string filename)
@@ -258,7 +262,7 @@ void QFSolver::SaveResults(std::string filename)
 			int source = teGraph_->id(teGraph_->source(arc));
 			int target = teGraph_->id(teGraph_->target(arc));
 			if(value != 0/* && source % sliceCount != target % sliceCount*/)
-				file << (i- timeUsed_ * sliceCount) / sliceCount << "\t" << source % sliceCount << "\t" << target% sliceCount << "\t" << value<<"\r\n";
+				file << (i- timeUsed_ * sliceCount) / sliceCount << "\t" << source % sliceCount << "\t" << target% sliceCount << "\t" << value<<std::endl;
 		}
 		file.close();
 	}
