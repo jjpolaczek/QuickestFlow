@@ -35,8 +35,8 @@ void QFSolver::LoadGraph(std::string filename)
 		arc_count = std::stoi(line, &sz);
 		line = line.substr(sz);
 		node_count = std::stoi(line, &sz);
-		std::cout << "Loading graph, source: " << source << ", sink: " << target << ", flow: " << F << "\r\n";
-		std::cout << "Nodes: " << node_count << ", Arcs: " << arc_count << "\r\n\r\n";
+		//std::cout << "Loading graph, source: " << source << ", sink: " << target << ", flow: " << F << "\r\n";
+		//std::cout << "Nodes: " << node_count << ", Arcs: " << arc_count << "\r\n\r\n";
 		while (getline(file, line))
 		{
 			
@@ -211,14 +211,14 @@ void QFSolver::Solve()
 {
 	//Binary search//
 	int lh = 0, uh = maxDelay_ + maxCapacity_ / flowValue_;
-	std::cout << "Lower bound:  "<< lh << ", Upper bound: " << uh << "\r\n";
+	//std::cout << "Lower bound:  "<< lh << ", Upper bound: " << uh << "\r\n";
 	//Expand upper bound if needed//
 	while (MaxFlow(uh) < flowValue_)
 	{
 		lh = uh;
 		uh *= 2;
 
-		std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
+	//	std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
 	}
 	//Search until 1 epsilion//
 	int flow;
@@ -230,10 +230,10 @@ void QFSolver::Solve()
 			lh = middle;
 		else
 			uh = middle;
-		std::cout << "Flow returned: " << flow << "\r\n";
-		std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
+	//	std::cout << "Flow returned: " << flow << "\r\n";
+	//	std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
 	}
-	std::cout << "Quickest flow time horizon returned: " << uh << "\r\n";
+	//std::cout << "Quickest flow time horizon returned: " << uh << "\r\n";
 	MaxFlowMap(uh);
 	unitsSent_ = flow;
 	timeUsed_ = uh;
