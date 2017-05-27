@@ -1,6 +1,7 @@
 #include "QFSolver.h"
 
 using std::ifstream;
+using std::ofstream;
 using namespace lemon;
 void QFSolver::LoadGraph(std::string filename)
 {
@@ -47,7 +48,7 @@ void QFSolver::LoadGraph(std::string filename)
 			arc.capacity = std::stoi(line, &sz);
 			line = line.substr(sz);
 			arc.delay = std::stoi(line, &sz);
-			std::cout << "Arc parameters: " << arc.vi << "-" << arc.vj << ", capacity: " << arc.capacity << ", delay: " << arc.delay << "\r\n";
+			//std::cout << "Arc parameters: " << arc.vi << "-" << arc.vj << ", capacity: " << arc.capacity << ", delay: " << arc.delay << "\r\n";
 			tmpArc.push_back(arc);
 			//Max values//
 			if (arc.capacity > maxCapacity_)
@@ -185,7 +186,6 @@ void QFSolver::MaxFlowMap(unsigned int horizon)
 		ListDigraph::Arc arc = teGraph_->arcFromId(i);
 		(*flowMap_)[arc] = flowMap[arc];
 	}
-	std::cout << "LOLO";
 }
 int QFSolver::MaxFlow(unsigned int horizon)
 {
@@ -221,10 +221,11 @@ void QFSolver::Solve()
 		std::cout << "Lower bound:  " << lh << ", Upper bound: " << uh << "\r\n";
 	}
 	//Search until 1 epsilion//
+	int flow;
 	while(lh != uh && lh != uh -1)
 	{
 		int middle = (uh + lh) / 2;
-		int flow = MaxFlow(middle);
+		flow = MaxFlow(middle);
 		if (flow < flowValue_)
 			lh = middle;
 		else
@@ -234,8 +235,35 @@ void QFSolver::Solve()
 	}
 	std::cout << "Quickest flow time horizon returned: " << uh << "\r\n";
 	MaxFlowMap(uh);
+	unitsSent_ = flow;
+	timeUsed_ = uh;
 }
 void QFSolver::SaveResults(std::string filename)
 {
-
+	ofstream file;
+	file.open(filename, std::ios::out | std::ios::trunc);
+	if (file.is_open())
+	{
+		file << "Flow from node id: " << sourceID_ << " to node id: " << targetID_ << "\r\n";
+		file << "Units sent: " << unitsSent_ << " Time used: " << timeUsed_ << "\r\n";
+		file << "czas\tvi\tvj\tF" << "\r\n";
+		if (teGraph_ == nullptr || flowMap_ == nullptr)
+			throw std::exception("Invalid Operaton - optimization not performed");
+		int arcCount = teGraph_->maxArcId() + 1;
+		int sliceCount = baseGraph_->maxNodeId() + 1;
+		for (int i = timeUsed_ * sliceCount; i < arcCount; ++i)
+		{
+			ListDigraph::Arc arc = teGraph_->arcFromId(i);
+			int value = (*flowMap_)[arc];
+			int source = teGraph_->id(teGraph_->source(arc));
+			int target = teGraph_->id(teGraph_->target(arc));
+			if(value != 0/* && source % sliceCount != target % sliceCount*/)
+				file << (i- timeUsed_ * sliceCount) / sliceCount << "\t" << source % sliceCount << "\t" << target% sliceCount << "\t" << value<<"\r\n";
+		}
+		file.close();
+	}
+	else
+	{
+		throw std::invalid_argument("Invalid file path");
+	}
 }

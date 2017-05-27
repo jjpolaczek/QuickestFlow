@@ -4,7 +4,6 @@
 #include <lemon\concepts\maps.h>
 #include <lemon\list_graph.h>
 #include <lemon\edmonds_karp.h>
-
 #include <iostream>
 #include <fstream>
 
@@ -63,4 +62,6 @@ private:
 	int flowValue_;
 	int maxCapacity_;
 	int maxDelay_;
+	int unitsSent_;
+	int timeUsed_;
 };
