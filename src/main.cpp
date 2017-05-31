@@ -1,12 +1,16 @@
 #include <iostream>
-//#include <thread>
-//#include <mutex>
 #include "QFSolver.h"
 #include "Generator.h"
 #include "GraphPerf.h"
 using std::ofstream;
 int main()
 {
+	QFSolver solver;
+	solver.LoadGraph("sample.txt");
+	solver.Solve();
+	solver.SaveResults("results.txt");
+	return 1;
+	//system("PAUSE");
 	PerformanceMonitor monitor;
 	ofstream file;
 
@@ -34,14 +38,5 @@ int main()
 	{
 		throw std::invalid_argument("Invalid file path");
 	}
-
-	//GraphGenerator gen;
-	//gen.Generate("graph.txt", 500);
-
-	//QFSolver solver;
-	//solver.LoadGraph("graph.txt");
-	//solver.Solve();
-	//solver.SaveResults("results.txt");
-	//system("PAUSE");
 
 }

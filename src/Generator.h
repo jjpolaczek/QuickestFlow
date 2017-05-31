@@ -7,7 +7,10 @@
 #include <iostream>
 #include <fstream>
 #include <random>
-
+//!  Flow network generator
+/*!
+	Class encapsulating flow network generation method 
+*/
 class GraphGenerator
 {
 public:
@@ -15,5 +18,10 @@ public:
 	{
 
 	}
+	//!  Generate
+	/*!
+		Crates and saves a file named filename containing random graph with nodeCount
+		ammount of nodes
+	*/
 	void Generate(std::string filename, int NodeCount);
 };

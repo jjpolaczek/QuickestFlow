@@ -6,7 +6,11 @@
 #include <lemon\edmonds_karp.h>
 #include <iostream>
 #include <fstream>
-
+//!  Quickest Flow Solver class
+/*!
+	Class for solving the quickest flow problem. Typical workflow consists of calling LoadGraph() on a graph file
+	followed by Solve() and SaveResults()
+*/
 class QFSolver
 {
 public:
@@ -42,12 +46,36 @@ public:
 		if (flowMap_ != nullptr)
 			delete flowMap_;
 	}
+	//!  LoadGraph
+	/*!
+		Method loads flow network into class structure from file containing flow network definition named filepath
+	*/
 	void LoadGraph(std::string filepath);
+	//!  Solve
+	/*!
+		Method solves Quickest flow problem for previously loaded graph. Throws exception if called without geometry
+	*/
 	void Solve();
+	//!  SaveResults
+	/*!
+		Method saves calculation results in a file specified with filename.
+	*/
 	void SaveResults(std::string filename);
 private:
+	//!  ExpandGrapg
+	/*!
+		Create a time expanded graph for max flow calculation
+	*/
 	void ExpandGraph(unsigned int horizon);
+	//!  MaxFlow
+	/*!
+		Calculate Max flow on base flow network loaded from file, Calls ExpandGraph internally
+	*/
 	int MaxFlow(unsigned int horizon);
+	//!  MaxFlowMap
+	/*!
+		Variation of MaxFlow, saves the flow map into class structure ( it is dedstroyed in the alternative)
+	*/
 	void MaxFlowMap(unsigned int horizon);
 	lemon::ListDigraph *baseGraph_;
 	lemon::ListDigraph::ArcMap<int> *capacityMap_;
