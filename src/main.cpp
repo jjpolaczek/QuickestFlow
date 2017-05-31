@@ -2,9 +2,18 @@
 #include "QFSolver.h"
 #include "Generator.h"
 #include "GraphPerf.h"
+
+//#define PERFORMANCETEST
 using std::ofstream;
 int main()
 {
+
+	QFSolver solver;
+	solver.LoadGraph("sample.txt");
+	solver.Solve();
+	solver.SaveResults("results.txt");
+	return 0;
+#ifdef PERFORMANCETEST
 	QFSolver solver;
 	solver.LoadGraph("sample.txt");
 	solver.Solve();
@@ -38,5 +47,5 @@ int main()
 	{
 		throw std::invalid_argument("Invalid file path");
 	}
-
+#endif
 }
